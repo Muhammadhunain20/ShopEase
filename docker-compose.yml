@@ -1,0 +1,19 @@
+services:
+  web:
+    image: ghcr.io/muhammadhunain20/shopease:main
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ShopEaseDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - AdminCredentials__Username=admin
+      - AdminCredentials__Password=YourSecureAdminPassword
+    depends_on:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - "1433:1433"
