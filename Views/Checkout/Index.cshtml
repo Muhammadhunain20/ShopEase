@@ -1,0 +1,140 @@
+@model ShopEase.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-bag-check me-2"></i>Checkout</h2>
+
+    <form asp-action="PlaceOrder" asp-controller="Checkout" method="post">
+        @Html.AntiForgeryToken()
+        <div class="row g-4">
+            <!-- Shipping Info -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt me-2 text-primary"></i>Shipping Information</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Full Name *</label>
+                                <input asp-for="CustomerName" class="form-control" placeholder="Muhammad Ali" />
+                                <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Email *</label>
+                                <input asp-for="Email" class="form-control" placeholder="example@email.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Phone *</label>
+                                <input asp-for="Phone" class="form-control" placeholder="0300-1234567" />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">City *</label>
+                                <input asp-for="City" class="form-control" placeholder="Karachi" />
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Address *</label>
+                                <input asp-for="Address" class="form-control" placeholder="Street, Block, Area" />
+                                <span asp-validation-for="Address" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">ZIP Code *</label>
+                                <input asp-for="ZipCode" class="form-control" placeholder="75000" />
+                                <span asp-validation-for="ZipCode" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-credit-card me-2 text-primary"></i>Payment Method</h5>
+                        <div class="d-flex flex-column gap-3">
+                            <label class="payment-option d-flex align-items-center gap-3 p-3 border rounded-3 cursor-pointer">
+                                <input type="radio" asp-for="PaymentMethod" value="COD" checked class="form-check-input mt-0" />
+                                <i class="bi bi-cash-coin fs-4 text-success"></i>
+                                <div>
+                                    <div class="fw-semibold">Cash on Delivery</div>
+                                    <small class="text-muted">Pay when your order arrives</small>
+                                </div>
+                            </label>
+                            <label class="payment-option d-flex align-items-center gap-3 p-3 border rounded-3 cursor-pointer">
+                                <input type="radio" asp-for="PaymentMethod" value="Card" class="form-check-input mt-0" />
+                                <i class="bi bi-credit-card fs-4 text-primary"></i>
+                                <div>
+                                    <div class="fw-semibold">Credit / Debit Card</div>
+                                    <small class="text-muted">Visa, Mastercard accepted</small>
+                                </div>
+                            </label>
+                            <label class="payment-option d-flex align-items-center gap-3 p-3 border rounded-3 cursor-pointer">
+                                <input type="radio" asp-for="PaymentMethod" value="EasyPaisa" class="form-check-input mt-0" />
+                                <i class="bi bi-phone fs-4 text-warning"></i>
+                                <div>
+                                    <div class="fw-semibold">EasyPaisa / JazzCash</div>
+                                    <small class="text-muted">Mobile wallet payment</small>
+                                </div>
+                            </label>
+                        </div>
+                        <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Review -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-sm sticky-top" style="top:80px">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-receipt me-2 text-primary"></i>Your Order</h5>
+
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                                <img src="@item.ImageUrl" alt="@item.ProductName"
+                                     style="width:55px;height:55px;object-fit:cover;border-radius:8px;" />
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold small">@item.ProductName</div>
+                                    <small class="text-muted">Qty: @item.Quantity × PKR @item.Price.ToString("N0")</small>
+                                </div>
+                                <span class="fw-bold small">PKR @item.SubTotal.ToString("N0")</span>
+                            </div>
+                        }
+
+                        @{
+                            decimal shipping = Model.TotalAmount >= 3000 ? 0 : 200;
+                            decimal grandTotal = Model.TotalAmount + shipping;
+                        }
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span>PKR @Model.TotalAmount.ToString("N0")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shipping</span>
+                            <span class="@(shipping == 0 ? "text-success" : "")">@(shipping == 0 ? "Free" : $"PKR {shipping:N0}")</span>
+                        </div>
+                        <hr />
+                        <div class="d-flex justify-content-between fw-bold fs-5 mb-4">
+                            <span>Grand Total</span>
+                            <span style="color:var(--primary)">PKR @grandTotal.ToString("N0")</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Place Order
+                        </button>
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="bi bi-shield-check text-success me-1"></i>Your order is safe & secure</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}

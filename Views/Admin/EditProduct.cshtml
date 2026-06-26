@@ -1,0 +1,122 @@
+@model ShopEase.ViewModels.AdminProductViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Add Product" : "Edit Product";
+    bool isEdit = Model.Id != 0;
+}
+
+<div class="container py-4" style="max-width:800px">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="/Admin/Products" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h2 class="fw-bold mb-0">@ViewData["Title"]</h2>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <form asp-action="@(isEdit ? "EditProduct" : "CreateProduct")" asp-controller="Admin" method="post">
+                @Html.AntiForgeryToken()
+                @if (isEdit)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold">Product Name *</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Wireless Headphones" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Category *</label>
+                        <select asp-for="CategoryId" class="form-select"
+                                asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                            <option value="">-- Select --</option>
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"
+                                  placeholder="Enter product description..."></textarea>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Price (PKR) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">PKR</span>
+                            <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Sale Price (PKR)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">PKR</span>
+                            <input asp-for="DiscountPrice" class="form-control" type="number" step="0.01" min="0"
+                                   placeholder="Optional" />
+                        </div>
+                        <small class="text-muted">Leave empty for no discount</small>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Stock Quantity *</label>
+                        <input asp-for="Stock" class="form-control" type="number" min="0" />
+                        <span asp-validation-for="Stock" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Image URL</label>
+                        <input asp-for="ImageUrl" class="form-control" placeholder="https://..." id="imageUrlInput" />
+                        <small class="text-muted">Paste an image URL (e.g. from Unsplash)</small>
+                    </div>
+
+                    <!-- Image Preview -->
+                    <div class="col-12" id="imgPreviewWrapper" style="@(string.IsNullOrEmpty(Model.ImageUrl) ? "display:none" : "")">
+                        <label class="form-label fw-semibold">Preview</label>
+                        <img id="imgPreview" src="@Model.ImageUrl" alt="Preview"
+                             style="width:150px;height:150px;object-fit:cover;border-radius:10px;border:2px solid #dee2e6" />
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                            <label class="form-check-label fw-semibold">Active (visible on store)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="mt-4" />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-@(isEdit ? "check-circle" : "plus-circle") me-2"></i>
+                        @(isEdit ? "Update Product" : "Create Product")
+                    </button>
+                    <a href="/Admin/Products" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+document.getElementById('imageUrlInput').addEventListener('input', function() {
+    const url = this.value;
+    const wrapper = document.getElementById('imgPreviewWrapper');
+    const img = document.getElementById('imgPreview');
+    if (url) {
+        img.src = url;
+        wrapper.style.display = 'block';
+    } else {
+        wrapper.style.display = 'none';
+    }
+});
+</script>
+}

@@ -1,0 +1,150 @@
+@model ShopEase.ViewModels.ProductListViewModel
+@{
+    ViewData["Title"] = "Shop";
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Shop</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm sticky-top" style="top:80px">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-4"><i class="bi bi-funnel me-2"></i>Filters</h5>
+
+                    <!-- Category Filter -->
+                    <h6 class="fw-semibold mb-3">Categories</h6>
+                    <div class="d-flex flex-column gap-2 mb-4">
+                        <a href="/Product/Index?search=@Model.SearchQuery&sortBy=@Model.SortBy"
+                           class="filter-link @(Model.CategoryId == null ? "active" : "")">
+                            <i class="bi bi-grid me-2"></i>All Categories
+                        </a>
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <a href="/Product/Index?categoryId=@cat.Id&search=@Model.SearchQuery&sortBy=@Model.SortBy"
+                               class="filter-link @(Model.CategoryId == cat.Id ? "active" : "")">
+                                <i class="bi bi-tag me-2"></i>@cat.Name
+                            </a>
+                        }
+                    </div>
+
+                    <!-- Sort -->
+                    <h6 class="fw-semibold mb-3">Sort By</h6>
+                    <form method="get" action="/Product/Index">
+                        @if (Model.CategoryId.HasValue)
+                        {
+                            <input type="hidden" name="categoryId" value="@Model.CategoryId" />
+                        }
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                        {
+                            <input type="hidden" name="search" value="@Model.SearchQuery" />
+                        }
+                        <select name="sortBy" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="newest" selected="@(Model.SortBy == "newest")">Newest First</option>
+                            <option value="price_asc" selected="@(Model.SortBy == "price_asc")">Price: Low to High</option>
+                            <option value="price_desc" selected="@(Model.SortBy == "price_desc")">Price: High to Low</option>
+                            <option value="name" selected="@(Model.SortBy == "name")">Name A-Z</option>
+                        </select>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-0">
+                        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                        { <span>Results for "@Model.SearchQuery"</span> }
+                        else
+                        { <span>All Products</span> }
+                    </h4>
+                    <small class="text-muted">@Model.TotalCount products found</small>
+                </div>
+            </div>
+
+            @if (!Model.Products.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No products found</h4>
+                    <a href="/Product/Index" class="btn btn-primary mt-2">Browse All</a>
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col-6 col-md-4">
+                            <div class="card h-100 border-0 shadow-sm product-card">
+                                <div class="position-relative overflow-hidden product-img-wrapper">
+                                    <img src="@product.ImageUrl" class="card-img-top product-img" alt="@product.Name" />
+                                    @if (product.DiscountPrice.HasValue)
+                                    {
+                                        var discount = (int)Math.Round((1 - product.DiscountPrice.Value / product.Price) * 100);
+                                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">-@discount%</span>
+                                    }
+                                    @if (product.Stock == 0)
+                                    {
+                                        <div class="out-of-stock-overlay">Out of Stock</div>
+                                    }
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <p class="text-muted small mb-1">@product.Category?.Name</p>
+                                    <h6 class="fw-semibold mb-2 flex-grow-1">
+                                        <a href="/Product/Detail/@product.Id" class="text-dark text-decoration-none">@product.Name</a>
+                                    </h6>
+                                    <div class="mb-2">
+                                        <span class="fw-bold" style="color:var(--primary)">PKR @product.FinalPrice.ToString("N0")</span>
+                                        @if (product.DiscountPrice.HasValue)
+                                        {
+                                            <small class="text-muted text-decoration-line-through ms-1">@product.Price.ToString("N0")</small>
+                                        }
+                                    </div>
+                                    <small class="text-muted mb-2">
+                                        @if (product.Stock > 0)
+                                        { <span class="text-success"><i class="bi bi-check-circle me-1"></i>In Stock (@product.Stock)</span> }
+                                        else
+                                        { <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Out of Stock</span> }
+                                    </small>
+                                    <div class="d-grid gap-2 mt-auto">
+                                        <button class="btn btn-primary btn-sm add-to-cart-btn @(product.Stock == 0 ? "disabled" : "")"
+                                                data-product-id="@product.Id">
+                                            <i class="bi bi-cart-plus me-1"></i>Add to Cart
+                                        </button>
+                                        <a href="/Product/Detail/@product.Id" class="btn btn-outline-secondary btn-sm">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="mt-5 d-flex justify-content-center">
+                        <ul class="pagination">
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                    <a class="page-link" href="/Product/Index?page=@i&categoryId=@Model.CategoryId&search=@Model.SearchQuery&sortBy=@Model.SortBy">@i</a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,170 @@
+@{
+    ViewData["Title"] = "Home";
+    var featured = ViewBag.FeaturedProducts as List<ShopEase.Models.Product>;
+    var categories = ViewBag.Categories as List<ShopEase.Models.Category>;
+}
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-50 py-5">
+            <div class="col-lg-6" data-aos="fade-right">
+                <span class="badge bg-warning text-dark fw-normal mb-3 px-3 py-2">New Arrivals 🔥</span>
+                <h1 class="display-4 fw-bold lh-sm mb-3">
+                    Discover <span class="text-gradient">Amazing</span><br/>Products
+                </h1>
+                <p class="lead text-muted mb-4">Shop the best deals on electronics, fashion, home goods, and more. Free delivery on orders over PKR 3,000.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/Product/Index" class="btn btn-primary btn-lg px-4 py-2">
+                        <i class="bi bi-grid me-2"></i>Shop Now
+                    </a>
+                    <a href="#categories" class="btn btn-outline-secondary btn-lg px-4 py-2">
+                        Browse Categories
+                    </a>
+                </div>
+                <div class="row g-3 mt-4">
+                    <div class="col-4 text-center">
+                        <h4 class="fw-bold mb-0" style="color:var(--primary)">500+</h4>
+                        <small class="text-muted">Products</small>
+                    </div>
+                    <div class="col-4 text-center border-start border-end">
+                        <h4 class="fw-bold mb-0" style="color:var(--primary)">10K+</h4>
+                        <small class="text-muted">Customers</small>
+                    </div>
+                    <div class="col-4 text-center">
+                        <h4 class="fw-bold mb-0" style="color:var(--primary)">4.8★</h4>
+                        <small class="text-muted">Rating</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-4 mt-lg-0">
+                <div class="hero-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=500" 
+                         alt="Shopping" class="img-fluid rounded-4 shadow-lg hero-img" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Bar -->
+<section class="py-4 bg-white border-top border-bottom">
+    <div class="container">
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3">
+                <i class="bi bi-truck fs-3 text-primary d-block mb-1"></i>
+                <strong class="d-block small">Free Delivery</strong>
+                <span class="text-muted" style="font-size:.8rem">Orders over PKR 3K</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-shield-check fs-3 text-success d-block mb-1"></i>
+                <strong class="d-block small">Secure Payment</strong>
+                <span class="text-muted" style="font-size:.8rem">100% protected</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-arrow-return-left fs-3 text-warning d-block mb-1"></i>
+                <strong class="d-block small">Easy Returns</strong>
+                <span class="text-muted" style="font-size:.8rem">30-day return policy</span>
+            </div>
+            <div class="col-6 col-md-3">
+                <i class="bi bi-headset fs-3 text-danger d-block mb-1"></i>
+                <strong class="d-block small">24/7 Support</strong>
+                <span class="text-muted" style="font-size:.8rem">Always here to help</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="py-5" id="categories">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Shop by Category</h2>
+            <p class="text-muted">Find exactly what you're looking for</p>
+        </div>
+        <div class="row g-3 justify-content-center">
+            @{
+                var catIcons = new[] { "bi-lightning-charge", "bi-bag", "bi-house", "bi-bicycle" };
+                var catColors = new[] { "#4361ee", "#7209b7", "#f72585", "#4cc9f0" };
+                int ci = 0;
+            }
+            @foreach (var cat in (categories ?? new()))
+            {
+                <div class="col-6 col-md-3">
+                    <a href="/Product/Index?categoryId=@cat.Id" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm text-center p-4 h-100 category-card">
+                            <div class="category-icon mx-auto mb-3" style="background:@catColors[ci % catColors.Length]20; color:@catColors[ci % catColors.Length]">
+                                <i class="bi @catIcons[ci % catIcons.Length] fs-3"></i>
+                            </div>
+                            <h6 class="fw-semibold mb-0">@cat.Name</h6>
+                        </div>
+                    </a>
+                </div>
+                ci++;
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Featured Products</h2>
+                <p class="text-muted mb-0">Handpicked just for you</p>
+            </div>
+            <a href="/Product/Index" class="btn btn-outline-primary">View All <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            @foreach (var product in (featured ?? new()))
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm product-card">
+                        <div class="position-relative overflow-hidden product-img-wrapper">
+                            <img src="@product.ImageUrl" class="card-img-top product-img" alt="@product.Name" />
+                            @if (product.DiscountPrice.HasValue)
+                            {
+                                var discount = (int)Math.Round((1 - product.DiscountPrice.Value / product.Price) * 100);
+                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">-@discount%</span>
+                            }
+                            <div class="product-overlay">
+                                <a href="/Product/Detail/@product.Id" class="btn btn-light btn-sm rounded-pill px-3">
+                                    <i class="bi bi-eye me-1"></i> Quick View
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <p class="text-muted small mb-1">@product.Category?.Name</p>
+                            <h6 class="fw-semibold mb-2 flex-grow-1">@product.Name</h6>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="fw-bold" style="color:var(--primary)">PKR @product.FinalPrice.ToString("N0")</span>
+                                    @if (product.DiscountPrice.HasValue)
+                                    {
+                                        <small class="text-muted text-decoration-line-through ms-1">@product.Price.ToString("N0")</small>
+                                    }
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm mt-3 w-100 add-to-cart-btn"
+                                    data-product-id="@product.Id" data-product-name="@product.Name">
+                                <i class="bi bi-cart-plus me-1"></i> Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- Banner Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="promo-banner rounded-4 p-5 text-white text-center">
+            <h2 class="fw-bold mb-2">🎉 Special Offer!</h2>
+            <p class="lead mb-4">Get 20% off on your first order. Use code <strong>WELCOME20</strong></p>
+            <a href="/Product/Index" class="btn btn-light btn-lg px-5 fw-semibold">Shop Now</a>
+        </div>
+    </div>
+</section>

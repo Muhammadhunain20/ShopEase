@@ -1,0 +1,200 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var recentOrders = ViewBag.RecentOrders as List<ShopEase.Models.Order>;
+}
+
+<div class="container-fluid py-4">
+    <!-- Admin Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-speedometer2 me-2 text-primary"></i>Admin Dashboard</h2>
+            <p class="text-muted mb-0">Welcome back! Here's what's happening.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Admin/CreateProduct" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Add Product
+            </a>
+            <a href="/Admin/Logout" class="btn btn-outline-danger">
+                <i class="bi bi-box-arrow-right me-1"></i>Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Total Products</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.TotalProducts</h3>
+                        </div>
+                        <div class="stat-icon bg-primary-subtle text-primary">
+                            <i class="bi bi-box-seam fs-4"></i>
+                        </div>
+                    </div>
+                    <a href="/Admin/Products" class="text-primary small text-decoration-none mt-2 d-inline-block">
+                        Manage Products <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Total Orders</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.TotalOrders</h3>
+                        </div>
+                        <div class="stat-icon bg-success-subtle text-success">
+                            <i class="bi bi-bag-check fs-4"></i>
+                        </div>
+                    </div>
+                    <a href="/Admin/Orders" class="text-success small text-decoration-none mt-2 d-inline-block">
+                        View Orders <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Total Revenue</p>
+                            <h3 class="fw-bold mb-0">PKR @(((decimal)ViewBag.TotalRevenue).ToString("N0"))</h3>
+                        </div>
+                        <div class="stat-icon bg-warning-subtle text-warning">
+                            <i class="bi bi-currency-dollar fs-4"></i>
+                        </div>
+                    </div>
+                    <span class="text-muted small">From completed orders</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Pending Orders</p>
+                            <h3 class="fw-bold mb-0">@ViewBag.PendingOrders</h3>
+                        </div>
+                        <div class="stat-icon bg-danger-subtle text-danger">
+                            <i class="bi bi-clock-history fs-4"></i>
+                        </div>
+                    </div>
+                    <a href="/Admin/Orders?status=Pending" class="text-danger small text-decoration-none mt-2 d-inline-block">
+                        View Pending <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-3">
+            <a href="/Admin/Products" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 admin-nav-card">
+                    <i class="bi bi-box-seam fs-2 text-primary mb-3"></i>
+                    <h6 class="fw-bold mb-1">Products</h6>
+                    <small class="text-muted">Manage inventory</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/Admin/Orders" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 admin-nav-card">
+                    <i class="bi bi-receipt fs-2 text-success mb-3"></i>
+                    <h6 class="fw-bold mb-1">Orders</h6>
+                    <small class="text-muted">View & manage orders</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/Admin/CreateProduct" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 admin-nav-card">
+                    <i class="bi bi-plus-square fs-2 text-warning mb-3"></i>
+                    <h6 class="fw-bold mb-1">Add Product</h6>
+                    <small class="text-muted">Create new listing</small>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="/" class="text-decoration-none">
+                <div class="card border-0 shadow-sm h-100 text-center p-4 admin-nav-card">
+                    <i class="bi bi-shop fs-2 text-info mb-3"></i>
+                    <h6 class="fw-bold mb-1">View Store</h6>
+                    <small class="text-muted">See customer view</small>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Recent Orders</h5>
+                <a href="/Admin/Orders" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            @if (recentOrders != null && recentOrders.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Customer</th>
+                                <th>City</th>
+                                <th>Total</th>
+                                <th>Payment</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in recentOrders)
+                            {
+                                <tr>
+                                    <td><strong>#@order.Id</strong></td>
+                                    <td>@order.CustomerName</td>
+                                    <td>@order.City</td>
+                                    <td>PKR @order.TotalAmount.ToString("N0")</td>
+                                    <td><span class="badge bg-secondary">@order.PaymentMethod</span></td>
+                                    <td>
+                                        @{
+                                            var badgeClass = order.Status switch {
+                                                "Pending" => "bg-warning text-dark",
+                                                "Processing" => "bg-info",
+                                                "Shipped" => "bg-primary",
+                                                "Delivered" => "bg-success",
+                                                "Cancelled" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@order.Status</span>
+                                    </td>
+                                    <td><small class="text-muted">@order.OrderDate.ToString("MMM dd")</small></td>
+                                    <td>
+                                        <a href="/Admin/OrderDetail/@order.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center py-3">No orders yet.</p>
+            }
+        </div>
+    </div>
+</div>

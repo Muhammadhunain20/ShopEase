@@ -1,0 +1,151 @@
+@model ShopEase.ViewModels.ProductDetailViewModel
+@{
+    ViewData["Title"] = Model.Product.Name;
+    var p = Model.Product;
+}
+
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/Product/Index">Shop</a></li>
+            <li class="breadcrumb-item"><a href="/Product/Index?categoryId=@p.CategoryId">@p.Category?.Name</a></li>
+            <li class="breadcrumb-item active">@p.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5">
+        <!-- Product Image -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm overflow-hidden rounded-4">
+                <img src="@p.ImageUrl" alt="@p.Name" class="img-fluid" style="object-fit:cover; max-height:450px; width:100%" />
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="col-md-7">
+            <span class="badge bg-light text-primary border border-primary mb-2">@p.Category?.Name</span>
+            <h1 class="fw-bold h2 mb-3">@p.Name</h1>
+
+            <!-- Price -->
+            <div class="mb-3">
+                <span class="display-6 fw-bold" style="color:var(--primary)">PKR @p.FinalPrice.ToString("N0")</span>
+                @if (p.DiscountPrice.HasValue)
+                {
+                    var discount = (int)Math.Round((1 - p.DiscountPrice.Value / p.Price) * 100);
+                    <span class="text-muted text-decoration-line-through ms-3 fs-5">PKR @p.Price.ToString("N0")</span>
+                    <span class="badge bg-danger ms-2">Save @discount%</span>
+                }
+            </div>
+
+            <!-- Stock Status -->
+            <div class="mb-3">
+                @if (p.Stock > 10)
+                {
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">
+                        <i class="bi bi-check-circle me-1"></i>In Stock (@p.Stock available)
+                    </span>
+                }
+                else if (p.Stock > 0)
+                {
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Only @p.Stock left!
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+                        <i class="bi bi-x-circle me-1"></i>Out of Stock
+                    </span>
+                }
+            </div>
+
+            <hr />
+            <p class="text-muted lh-lg mb-4">@p.Description</p>
+
+            <!-- Quantity + Cart -->
+            @if (p.Stock > 0)
+            {
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="quantity-control d-flex align-items-center border rounded-3 overflow-hidden">
+                        <button class="btn btn-light border-0 px-3 py-2" onclick="changeQty(-1)">−</button>
+                        <input type="number" id="quantity" value="1" min="1" max="@p.Stock"
+                               class="form-control border-0 text-center fw-bold" style="width:60px" />
+                        <button class="btn btn-light border-0 px-3 py-2" onclick="changeQty(1)">+</button>
+                    </div>
+                    <button class="btn btn-primary btn-lg px-4 flex-grow-1 add-to-cart-btn"
+                            data-product-id="@p.Id" onclick="addToCartWithQty()">
+                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                    </button>
+                </div>
+                <a href="/Cart/Index" class="btn btn-outline-dark w-100 mb-3">
+                    <i class="bi bi-bag me-2"></i>Go to Cart
+                </a>
+            }
+
+            <!-- Trust Badges -->
+            <div class="row g-2 mt-2">
+                <div class="col-4 text-center">
+                    <div class="p-2 bg-light rounded-3">
+                        <i class="bi bi-truck text-primary d-block fs-5"></i>
+                        <small class="text-muted">Free Delivery</small>
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="p-2 bg-light rounded-3">
+                        <i class="bi bi-shield-check text-success d-block fs-5"></i>
+                        <small class="text-muted">Secure Pay</small>
+                    </div>
+                </div>
+                <div class="col-4 text-center">
+                    <div class="p-2 bg-light rounded-3">
+                        <i class="bi bi-arrow-return-left text-warning d-block fs-5"></i>
+                        <small class="text-muted">Easy Return</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (Model.RelatedProducts.Any())
+    {
+        <hr class="my-5" />
+        <h4 class="fw-bold mb-4">Related Products</h4>
+        <div class="row g-4">
+            @foreach (var rp in Model.RelatedProducts)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm product-card h-100">
+                        <div class="product-img-wrapper overflow-hidden">
+                            <img src="@rp.ImageUrl" class="card-img-top product-img" alt="@rp.Name" />
+                        </div>
+                        <div class="card-body">
+                            <h6 class="fw-semibold mb-1"><a href="/Product/Detail/@rp.Id" class="text-dark text-decoration-none">@rp.Name</a></h6>
+                            <span class="fw-bold" style="color:var(--primary)">PKR @rp.FinalPrice.ToString("N0")</span>
+                            <button class="btn btn-primary btn-sm w-100 mt-2 add-to-cart-btn" data-product-id="@rp.Id">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+function changeQty(delta) {
+    const input = document.getElementById('quantity');
+    const max = parseInt(input.max);
+    let val = parseInt(input.value) + delta;
+    input.value = Math.max(1, Math.min(max, val));
+}
+
+function addToCartWithQty() {
+    const qty = parseInt(document.getElementById('quantity').value);
+    addToCart(@p.Id, qty);
+}
+</script>
+}

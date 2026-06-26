@@ -1,0 +1,111 @@
+@model IEnumerable<ShopEase.Models.Product>
+@{
+    ViewData["Title"] = "Manage Products";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-box-seam me-2 text-primary"></i>Products</h2>
+        <div class="d-flex gap-2">
+            <div class="d-flex gap-2">
+                <a href="/Admin/Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+                <a href="/Admin/CreateProduct" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i>Add Product</a>
+                <a href="/Admin/Logout" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right me-1"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="productsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Sale Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@p.ImageUrl" style="width:50px;height:50px;object-fit:cover;border-radius:8px;" />
+                                        <span class="fw-semibold">@p.Name</span>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">@p.Category?.Name</span></td>
+                                <td>PKR @p.Price.ToString("N0")</td>
+                                <td>
+                                    @if (p.DiscountPrice.HasValue)
+                                    {
+                                        <span class="text-success fw-semibold">PKR @p.DiscountPrice.Value.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (p.Stock > 10)
+                                    {
+                                        <span class="badge bg-success-subtle text-success">@p.Stock</span>
+                                    }
+                                    else if (p.Stock > 0)
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning">@p.Stock (Low)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger">Out of Stock</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (p.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <a href="/Admin/EditProduct/@p.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="/Product/Detail/@p.Id" target="_blank" class="btn btn-sm btn-outline-info">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <form asp-action="DeleteProduct" asp-controller="Admin" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@p.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Deactivate this product?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

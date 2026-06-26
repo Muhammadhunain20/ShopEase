@@ -1,0 +1,102 @@
+@model ShopEase.Models.Order
+@{
+    ViewData["Title"] = $"Order #{Model.Id}";
+}
+
+<div class="container py-4">
+    <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="/Admin/Orders" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h2 class="fw-bold mb-0">Order #@Model.Id</h2>
+        @{
+            var badgeClass = Model.Status switch {
+                "Pending" => "bg-warning text-dark",
+                "Processing" => "bg-info",
+                "Shipped" => "bg-primary",
+                "Delivered" => "bg-success",
+                "Cancelled" => "bg-danger",
+                _ => "bg-secondary"
+            };
+        }
+        <span class="badge @badgeClass fs-6">@Model.Status</span>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Order Items -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Items Ordered</h5>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                            @if (item.Product?.ImageUrl != null)
+                            {
+                                <img src="@item.Product.ImageUrl" style="width:60px;height:60px;object-fit:cover;border-radius:8px;" />
+                            }
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">@item.Product?.Name</div>
+                                <small class="text-muted">PKR @item.UnitPrice.ToString("N0") × @item.Quantity</small>
+                            </div>
+                            <div class="fw-bold">PKR @item.SubTotal.ToString("N0")</div>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between fw-bold fs-5 mt-3">
+                        <span>Total</span>
+                        <span style="color:var(--primary)">PKR @Model.TotalAmount.ToString("N0")</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Update Status -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Update Order Status</h5>
+                    <form asp-action="UpdateOrderStatus" asp-controller="Admin" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <select name="status" class="form-select">
+                            @foreach (var s in new[] { "Pending", "Processing", "Shipped", "Delivered", "Cancelled" })
+                            {
+                                <option value="@s" selected="@(Model.Status == s)">@s</option>
+                            }
+                        </select>
+                        <button type="submit" class="btn btn-primary px-4">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer & Shipping Info -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-person me-2 text-primary"></i>Customer Info</h6>
+                    <p class="mb-1"><strong>@Model.CustomerName</strong></p>
+                    <p class="mb-1 text-muted"><i class="bi bi-envelope me-1"></i>@Model.Email</p>
+                    <p class="mb-0 text-muted"><i class="bi bi-telephone me-1"></i>@Model.Phone</p>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Shipping Address</h6>
+                    <p class="mb-1">@Model.Address</p>
+                    <p class="mb-0 text-muted">@Model.City — @Model.ZipCode</p>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-credit-card me-2 text-primary"></i>Payment</h6>
+                    <p class="mb-1"><span class="badge bg-secondary">@Model.PaymentMethod</span></p>
+                    <p class="mb-0 text-muted small">Ordered: @Model.OrderDate.ToString("MMM dd, yyyy hh:mm tt")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

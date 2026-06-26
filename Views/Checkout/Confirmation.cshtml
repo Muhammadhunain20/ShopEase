@@ -1,0 +1,103 @@
+@model ShopEase.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmed";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <div class="success-animation mb-3">
+            <div class="success-circle mx-auto">
+                <i class="bi bi-check-lg text-white fs-1"></i>
+            </div>
+        </div>
+        <h2 class="fw-bold mt-3">Order Placed Successfully!</h2>
+        <p class="text-muted fs-5">Thank you, <strong>@Model.CustomerName</strong>! We've received your order.</p>
+        <div class="badge bg-primary-subtle text-primary border border-primary-subtle px-4 py-2 fs-6">
+            Order #@Model.Id
+        </div>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Order Details -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-4">Order Details</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if (item.Product?.ImageUrl != null)
+                                                {
+                                                    <img src="@item.Product.ImageUrl" style="width:45px;height:45px;object-fit:cover;border-radius:6px;" />
+                                                }
+                                                <span class="fw-semibold small">@item.Product?.Name</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">PKR @item.SubTotal.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="fw-bold">
+                                    <td colspan="2">Total</td>
+                                    <td class="text-end" style="color:var(--primary)">PKR @Model.TotalAmount.ToString("N0")</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Payment Info -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Shipping To</h6>
+                    <p class="mb-1">@Model.CustomerName</p>
+                    <p class="mb-1 text-muted small">@Model.Address</p>
+                    <p class="mb-1 text-muted small">@Model.City, @Model.ZipCode</p>
+                    <p class="mb-0 text-muted small">@Model.Email | @Model.Phone</p>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-credit-card me-2 text-primary"></i>Payment</h6>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">@Model.PaymentMethod</span>
+                    <p class="text-muted small mt-2 mb-0">Order Date: @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-2">Order Status</h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle">@Model.Status</span>
+                        <small class="text-muted">We'll update you via email</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="/" class="btn btn-primary btn-lg me-3 px-4">
+            <i class="bi bi-house me-2"></i>Back to Home
+        </a>
+        <a href="/Product/Index" class="btn btn-outline-primary btn-lg px-4">
+            <i class="bi bi-grid me-2"></i>Continue Shopping
+        </a>
+    </div>
+</div>
